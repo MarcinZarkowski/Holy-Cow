@@ -8,6 +8,7 @@ set(HEADER_FILES
 
 set(SOURCE_CODE_FILES
         src/CoreApplication.cpp
+        headers/CoreWindow.h
 )
 
 # Build a dynamic library (SHARED))
