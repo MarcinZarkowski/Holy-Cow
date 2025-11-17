@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
+add_subdirectory(glfw)
 add_subdirectory(Session)
 add_subdirectory(Core)
 

@@ -4,4 +4,4 @@ Release
 RelWithDebInfo
 .vs
 cmake-build-debug
-
+.idea

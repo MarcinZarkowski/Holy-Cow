@@ -3,7 +3,7 @@
 
 class Game : public Core::CoreApplication {
     void Update() override {
-        std::cout<<"Game is running"<<std::endl;
+        //std::cout<<"Game is running"<<std::endl;
     }
 };
 
