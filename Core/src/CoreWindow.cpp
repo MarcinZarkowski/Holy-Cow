@@ -1,5 +1,5 @@
-#include "../headers/pch.h"
-#include"../headers/CoreWindow.h"
+#include "pch.h"
+#include "CoreWindow.h"
 #include "GLFWsrc/WindowGLFW.h"
 
 namespace Core {

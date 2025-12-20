@@ -1,6 +1,9 @@
 
 #include "GLFWsrc/WindowGLFW.h"
+#include "glad/glad.h"
+#define GLFW_INCLUDE_NONE
 #include "GLFW/glfw3.h"
+#include "utils.h"
 
 namespace Core {
 
@@ -15,9 +18,12 @@ namespace Core {
         mWindowPtr = glfwCreateWindow(width, height, windowName.c_str(), NULL, NULL);
         std::cout<<"did this"<<std::endl;
         if (mWindowPtr == NULL) {
-            std::cout<<"Failed to create GLFW window" << std::endl;
+            CORE_ERROR("Failed to create GLFW window\n");
         }
         glfwMakeContextCurrent(mWindowPtr);
+        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+            CORE_ERROR("Failed to initialize GLAD\n");
+        }
     }
 
     int WindowGLFW::GetWidth() const {

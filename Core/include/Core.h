@@ -1,4 +1,4 @@
 #pragma once
 
-#include "../headers/CoreApplication.h"
-#include "../headers/utils.h"
+#include "CoreApplication.h"
+#include "utils.h"

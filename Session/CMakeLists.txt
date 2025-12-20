@@ -9,4 +9,6 @@ add_executable(GameApp
 target_link_libraries(GameApp Core)
 
 # Include exposed "include" files from engine used to make this executable.
-target_include_directories(GameApp PRIVATE ../Core/include)
+target_include_directories(GameApp PRIVATE
+        ../Core/include
+)

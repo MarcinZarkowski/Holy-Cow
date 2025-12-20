@@ -5,3 +5,4 @@ RelWithDebInfo
 .vs
 cmake-build-debug
 .idea
+build   
