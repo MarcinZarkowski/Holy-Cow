@@ -40,4 +40,12 @@ namespace Core {
     void CoreWindow::PollEvents() {
         mImplementation->PollEvents();
     }
+
+    void CoreWindow::SetKeyCallback(const std::function<void(const KeyEvent&)>& newCallback) {
+        mImplementation->SetKeyCallback(newCallback);
+    }
+
+    void CoreWindow::SetWindowCallback(const std::function<void(const WindowEvent&)>& newCallback) {
+        mImplementation->SetWindowCallback(newCallback);
+    }
 }

@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "utils.h"
 #include "WindowImplementation.h"
+#include "KeyEvent.h"
 
 namespace Core {
     class CORE_API CoreWindow {
@@ -16,6 +17,10 @@ namespace Core {
 
         void SwapBuffers();
         void PollEvents();
+
+        void SetKeyCallback(const std::function<void(const KeyEvent&)>& newCallback);
+
+        void SetWindowCallback(const std::function<void(const WindowEvent&)>& newCallback);
 
     private:
         CoreWindow();

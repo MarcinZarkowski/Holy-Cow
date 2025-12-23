@@ -15,8 +15,14 @@ namespace Core {
 
         void SwapBuffers() override;
         void PollEvents() override;
+        void SetKeyCallback(const std::function<void(const KeyEvent&)>& newCallback) override;
+        void SetWindowCallback(const std::function<void(const WindowEvent&)>& newCallback) override;
 
     private:
+        struct CallbackFunctions {
+            std::function<void(const KeyEvent&)> KeyCallback{[](const KeyEvent&){}};
+            std::function<void(const WindowEvent&)> WindowCallback{[](const WindowEvent&){}};
+        } mCallbacks;
         GLFWwindow* mWindowPtr { nullptr };
     };
 }

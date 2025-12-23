@@ -18,7 +18,7 @@ public:
   ~RendererGLFW();
 
 private:
-  ShaderGLFW mDefaultShaders{"../Assets/Shaders/defaultVertexShader.glsl",
-                             "../Assets/Shaders/defaultFragmentShader.glsl"};
+  ShaderGLFW mDefaultShaders{"../Core/Assets/Shaders/defaultVertexShader.glsl",
+                             "../Core/Assets/Shaders/defaultFragmentShader.glsl"};
 };
 } // namespace Core

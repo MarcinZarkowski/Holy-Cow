@@ -8,7 +8,7 @@ class RendererGLFW; // Forward declaration to avoid circular include
 
 class CORE_API Image {
 public:
-  Image(const std::string &fileName);
+  Image(const std::string &fileName, int targetSize = -1);
 
   int GetWidth() const;
   int GetHeight() const;

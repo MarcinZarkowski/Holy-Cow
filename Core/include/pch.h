@@ -9,3 +9,4 @@
 #include<fstream>
 #include<vector>
 #include<cassert>
+#include<functional>

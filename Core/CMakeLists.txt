@@ -20,6 +20,10 @@ set(HEADER_FILES
         include/Renderer/Renderer.h
         include/Renderer/RendererImplementation.h
         include/GLFWsrc/RendererGLFW.h
+
+        include/KeyEvent.h
+
+        include/WindowEvent.h
 )
 
 set(SOURCE_CODE_FILES
@@ -36,6 +40,10 @@ set(SOURCE_CODE_FILES
 
         src/Renderer/Renderer.cpp
         src/GLFWsrc/RendererGLFW.cpp
+
+        src/KeyEvent.cpp
+
+        src/WindowEvent.cpp
 )
 
 # Build a dynamic library (SHARED)
@@ -72,3 +80,4 @@ target_link_libraries(Core
 
 target_precompile_headers(Core PRIVATE include/pch.h)
 
+file(COPY Assets DESTINATION ${CMAKE_BINARY_DIR}/Core)

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "pch.h"
+#include "KeyEvent.h"
+#include "WindowEvent.h"
 
 namespace Core {
     class WindowImplementation {
@@ -13,6 +15,9 @@ namespace Core {
 
         virtual void SwapBuffers() = 0;
         virtual void PollEvents() = 0;
+
+        virtual void SetKeyCallback(const std::function<void(const KeyEvent&)>& newCallback) = 0;
+        virtual void SetWindowCallback(const std::function<void(const WindowEvent&)>& newCallback) = 0;
 
     };
 }

@@ -14,3 +14,5 @@ add_subdirectory(glad)
 add_subdirectory(stbi)
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT GameApp)
+
+file(COPY Assets DESTINATION ${CMAKE_BINARY_DIR})
