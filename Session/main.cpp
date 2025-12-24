@@ -3,6 +3,7 @@
 #include "src/GameState.h"
 #include "src/Map.h"
 #include <iostream>
+#include <set>
 constexpr int MAP_DIMENSION = 64;
 constexpr int TILE_SIZE = 64;
 
@@ -105,6 +106,9 @@ class Game : public Core::CoreApplication {
     int topTile = cameraTileY - HEIGHT_CELLS / 2 - 1;
     int bottomTile = cameraTileY + HEIGHT_CELLS / 2 + 1;
 
+    // Track which turrets have shot this frame to prevent duplicate bullets
+    std::set<std::pair<int, int>> shotsThisFrame;
+
     for (int tileY = topTile; tileY <= bottomTile; tileY++) {
       for (int tileX = leftTile; tileX <= rightTile; tileX++) {
         // Calculate world position of this tile in pixels (top-left corner)
@@ -125,7 +129,10 @@ class Game : public Core::CoreApplication {
         } else if (grid.at(tileX, tileY).getType() == CellType::Turret) {
           Core::Renderer::GetRenderer()->Draw(turret, screenX, screenY,
                                               shaders);
-          if (grid.at(tileX, tileY).canShoot() &&
+          // Only create bullet if this turret hasn't shot this frame yet
+          std::pair<int, int> turretPos = {tileX, tileY};
+          if (shotsThisFrame.find(turretPos) == shotsThisFrame.end() &&
+              grid.at(tileX, tileY).canShoot() &&
               grid.at(state.getTileX(), state.getTileY()).getType() !=
                   CellType::HayStack) {
             int turretPixelX = tileX * TILE_SIZE + TILE_SIZE / 2;
@@ -134,6 +141,7 @@ class Game : public Core::CoreApplication {
             int playerPixelY = state.getTileY() * TILE_SIZE + TILE_SIZE / 2;
             bullets.emplace_back(turretPixelX, turretPixelY, playerPixelX,
                                  playerPixelY, 90.0f, tileX, tileY);
+            shotsThisFrame.insert(turretPos);
           }
         } else if (grid.at(tileX, tileY).getType() == CellType::Destination) {
           Core::Renderer::GetRenderer()->Draw(barn, screenX, screenY, shaders);
@@ -180,8 +188,7 @@ class Game : public Core::CoreApplication {
       int bulletGridX = bul.getGridX(TILE_SIZE);
       int bulletGridY = bul.getGridY(TILE_SIZE);
 
-      // Remove bullets outside viewport (user doesn't want to track off-screen
-      // bullets)
+      // Remove bullets outside viewport
       if (bulletGridX < leftTile || bulletGridY < topTile ||
           bulletGridX > rightTile || bulletGridY > bottomTile)
         continue;
@@ -223,8 +230,6 @@ class Game : public Core::CoreApplication {
   }
 
 private:
-  // Hash function for pair (for unordered_map key)
-
   std::vector<Bullet> bullets;
   Map grid;
   GameState state;

@@ -2,14 +2,13 @@
 
 namespace Core {
 
-    WindowEvent::WindowEvent(WindowAction newWindowAction): mWindowAction(newWindowAction){};
+WindowEvent::WindowEvent(WindowAction newWindowAction)
+    : mWindowAction(newWindowAction) {};
 
-    WindowAction WindowEvent::GetWindowAction() const{
-        return mWindowAction;
-    }
+WindowAction WindowEvent::GetWindowAction() const { return mWindowAction; }
 
-    void WindowEvent::SetWindowAction(WindowAction newWindowAction) {
-        mWindowAction = newWindowAction;
-    }
-
+void WindowEvent::SetWindowAction(WindowAction newWindowAction) {
+  mWindowAction = newWindowAction;
 }
+
+} // namespace Core
