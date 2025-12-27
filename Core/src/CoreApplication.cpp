@@ -16,7 +16,7 @@ namespace Core {
 
 CoreApplication::CoreApplication() {
   CoreWindow::Init();
-  CoreWindow::GetWindow()->CreateWindow("Test", 800, 600);
+  CoreWindow::GetWindow()->CreateWindow("Game", 800, 600);
 
   SetWindowCallback(
       [this](const WindowEvent &event) { DefaultWindowEventHandler(event); });
