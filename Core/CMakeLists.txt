@@ -24,6 +24,8 @@ set(HEADER_FILES
         include/KeyEvent.h
 
         include/WindowEvent.h
+        
+        include/MouseEvent.h
 )
 
 set(SOURCE_CODE_FILES
@@ -44,6 +46,8 @@ set(SOURCE_CODE_FILES
         src/KeyEvent.cpp
 
         src/WindowEvent.cpp
+        
+        src/MouseEvent.cpp
 )
 
 # Build a dynamic library (SHARED)

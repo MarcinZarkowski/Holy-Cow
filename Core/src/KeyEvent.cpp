@@ -7,6 +7,7 @@ namespace Core {
 
     KeyAction KeyEvent::GetKeyAction() const {
         return mKeyAction;
+
     }
 
     int KeyEvent::GetKeyCode() const {

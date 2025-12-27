@@ -26,8 +26,17 @@ public:
   }
   bool isDead() const { return mHealth <= 0; }
 
+  // Bomb system
+  int getBombsRemaining() const { return mBombsRemaining; }
+  bool canThrowBomb() const { return mBombsRemaining > 0; }
+  void throwBomb() {
+    if (mBombsRemaining > 0)
+      mBombsRemaining--;
+  }
+
 private:
   std::vector<int> mTileCoords; // Stores [tileX, tileY]
   int mHealth = 3;              // Player starts with 3 HP
   bool mWon = false;
+  int mBombsRemaining = 5; // Player has 5 bombs total
 };

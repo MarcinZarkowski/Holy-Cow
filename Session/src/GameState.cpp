@@ -1,11 +1,6 @@
-//
-// Created by Marcin Zarkowski on 12/21/25.
-//
-
 #include "GameState.h"
 #include <vector>
 
-// Constructor takes TILE coordinates and stores them directly
 GameState::GameState(int tileX, int tileY) { mTileCoords = {tileX, tileY}; }
 
 void GameState::setTileCoords(int tileX, int tileY) {

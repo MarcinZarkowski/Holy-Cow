@@ -18,6 +18,8 @@ add_executable(GameApp
         src/CellTypes/SteakCell.h
         src/CellTypes/HayStackCell.cpp
         src/CellTypes/HayStackCell.h
+        src/Bomb.cpp
+        src/Bomb.h
 )
 
 # Link the game executable against the engine dynamic library

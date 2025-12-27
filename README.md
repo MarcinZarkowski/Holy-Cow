@@ -36,6 +36,17 @@ Guide your soldier through a dangerous farm to reach the barn and find shelter f
 - When destroyed, haystacks turn into **grass** and no longer provide cover
 - Use haystacks strategically to advance safely through dangerous areas
 
+### Bombs
+- **Left-click** to throw bombs at any location on the map
+- **5 bombs** total per round - use them wisely!
+- Bombs deal **1 damage** to the target cell **and all 8 surrounding cells** (3x3 area)
+- **UFOs have 5 health** - requires 5 hits to destroy (bullets or bombs)
+- Strategic uses:
+  - Turn cows into steaks to heal yourself
+  - Destroy UFOs blocking your path
+  - Clear obstacles from a distance
+- Bomb counter displayed in top-left corner (decreases as you throw)
+
 ## Building and Running the Game
 
 ### Prerequisites

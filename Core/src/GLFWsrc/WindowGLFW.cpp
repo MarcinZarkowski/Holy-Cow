@@ -87,4 +87,63 @@ void WindowGLFW::SetWindowCallback(
   mCallbacks.WindowCallback = newCallback;
 }
 
+void WindowGLFW::SetMouseCallback(
+    const std::function<void(const MouseEvent &)> &newCallback) {
+  mCallbacks.MouseCallback = newCallback;
+
+  // Set up GLFW mouse button callback
+  glfwSetMouseButtonCallback(
+      mWindowPtr, [](GLFWwindow *window, int button, int action, int mods) {
+        CallbackFunctions *callbacks{
+            (CallbackFunctions *)glfwGetWindowUserPointer(window)};
+
+        MouseEvent coreEvent;
+
+        // Set button
+        if (button == GLFW_MOUSE_BUTTON_LEFT)
+          coreEvent.SetButton(MouseButton::Left);
+        else if (button == GLFW_MOUSE_BUTTON_RIGHT)
+          coreEvent.SetButton(MouseButton::Right);
+        else if (button == GLFW_MOUSE_BUTTON_MIDDLE)
+          coreEvent.SetButton(MouseButton::Middle);
+
+        // Set action
+        if (action == GLFW_PRESS)
+          coreEvent.SetAction(MouseAction::Press);
+        else if (action == GLFW_RELEASE)
+          coreEvent.SetAction(MouseAction::Release);
+
+        // Get mouse position
+        double xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
+        coreEvent.SetPosition(xpos, ypos);
+
+        callbacks->MouseCallback(coreEvent);
+      });
+
+  // Set up GLFW cursor position callback
+  glfwSetCursorPosCallback(
+      mWindowPtr, [](GLFWwindow *window, double xpos, double ypos) {
+        CallbackFunctions *callbacks{
+            (CallbackFunctions *)glfwGetWindowUserPointer(window)};
+
+        MouseEvent coreEvent;
+        coreEvent.SetButton(MouseButton::None);
+        coreEvent.SetAction(MouseAction::Move);
+        coreEvent.SetPosition(xpos, ypos);
+
+        callbacks->MouseCallback(coreEvent);
+      });
+}
+
+void WindowGLFW::HideCursor(bool hide) {
+  if (mWindowPtr) {
+    if (hide) {
+      glfwSetInputMode(mWindowPtr, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    } else {
+      glfwSetInputMode(mWindowPtr, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
+  }
+}
+
 } // namespace Core

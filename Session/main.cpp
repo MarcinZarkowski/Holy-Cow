@@ -1,17 +1,23 @@
 #include "Core.h"
+#include "src/Bomb.h"
 #include "src/Bullet.h"
 #include "src/GameState.h"
 #include "src/Map.h"
+#include <chrono>
 #include <iostream>
 #include <set>
+const double BOMB_SPEED = 250.0;
 constexpr int MAP_DIMENSION = 64;
 constexpr int TILE_SIZE = 64;
 
+struct Explosion {
+  int gridX, gridY;
+  std::chrono::steady_clock::time_point startTime;
+};
+
 class Game : public Core::CoreApplication {
 
-  // Helper function to check if player can move to a tile
   bool canMoveTo(int newTileX, int newTileY) {
-    // Check if out of bounds
     if (newTileX < 0 || newTileY < 0 || newTileX >= MAP_DIMENSION ||
         newTileY >= MAP_DIMENSION) {
       return false;
@@ -53,8 +59,34 @@ class Game : public Core::CoreApplication {
         }
       }
     };
-
     SetKeyCallback(mKeyCallback);
+
+    // Mouse callback - minimal, just like keyboard!
+    auto mMouseCallback = [this](const Core::MouseEvent &event) {
+      mouseX = event.GetX();
+      mouseY = HEIGHT - event.GetY();
+
+      if (event.GetAction() == Core::MouseAction::Press) {
+        if (event.GetButton() == Core::MouseButton::Left &&
+            state.canThrowBomb()) {
+          int playerPixelX = state.getTileX() * TILE_SIZE + TILE_SIZE / 2;
+          int playerPixelY = state.getTileY() * TILE_SIZE + TILE_SIZE / 2;
+
+          int cameraPixelX = playerPixelX;
+          int cameraPixelY = playerPixelY;
+
+          double worldX = mouseX - (WIDTH / 2) + cameraPixelX;
+          double worldY = mouseY - (HEIGHT / 2) + cameraPixelY;
+
+          bombs.emplace_back(playerPixelX, playerPixelY, worldX, worldY,
+                             BOMB_SPEED);
+          state.throwBomb();
+        }
+      }
+    };
+    SetMouseCallback(mMouseCallback);
+
+    Core::CoreWindow::GetWindow()->HideCursor(true);
     grid = Map(MAP_DIMENSION);
     for (int i = 0; i < grid.dimensions(); i++) {
       for (int j = 0; j < grid.dimensions(); j++) {
@@ -64,10 +96,8 @@ class Game : public Core::CoreApplication {
     }
     WIDTH = Core::CoreWindow::GetWindow()->GetWidth();
     HEIGHT = Core::CoreWindow::GetWindow()->GetHeight();
-    WIDTH_CELLS =
-        (WIDTH / TILE_SIZE) + 1; // Number of tiles visible horizontally
-    HEIGHT_CELLS =
-        (HEIGHT / TILE_SIZE) + 1; // Number of tiles visible vertically
+    WIDTH_CELLS = (WIDTH / TILE_SIZE) + 1;
+    HEIGHT_CELLS = (HEIGHT / TILE_SIZE) + 1;
     std::vector<int> startCoords = grid.getStartCoords();
     state = GameState(startCoords[0], startCoords[1]);
 
@@ -84,7 +114,6 @@ class Game : public Core::CoreApplication {
   }
 
   void Update() override {
-    // Draw grass on whole camera
     Core::Renderer::GetRenderer()->Draw(grass, 0, 0, shaders);
     for (int y = 0; y < (HEIGHT / TILE_SIZE) + 1; y++) {
       for (int x = 0; x < (WIDTH / TILE_SIZE) + 1; x++) {
@@ -93,8 +122,6 @@ class Game : public Core::CoreApplication {
       }
     }
 
-    // Draw walls and turrets
-    // Camera is centered on player (convert tile to pixel for camera)
     int cameraTileX = state.getTileX();
     int cameraTileY = state.getTileY();
     int cameraPixelX = cameraTileX * TILE_SIZE + TILE_SIZE / 2;
@@ -171,27 +198,35 @@ class Game : public Core::CoreApplication {
     }
 
     // Draw health bar at top center
-    int heartSize = 32;
+    int heartSize = TILE_SIZE / 2;
     int totalWidth = state.getHealth() * heartSize;
     int startX = (WIDTH / 2) - (totalWidth / 2);
-    int heartY = 10;
     for (int i = 0; i < state.getHealth(); i++) {
-      Core::Renderer::GetRenderer()->Draw(heart, startX + i * heartSize, heartY,
+      Core::Renderer::GetRenderer()->Draw(heart, 10 + i * (TILE_SIZE + 5), 10,
                                           shaders);
+    }
+
+    int bombDisplayX = 10 + 3 * (TILE_SIZE + 5) + 20;
+    for (int i = 0; i < state.getBombsRemaining(); i++) {
+      Core::Renderer::GetRenderer()->Draw(
+          bomb, bombDisplayX + i * (TILE_SIZE + 5), 10, shaders);
     }
 
     // Update and render bullets
     const float deltaTime = 1.0f / 60.0f;
     std::vector<Bullet> newBullets;
     for (auto &bul : bullets) {
-      bul.update(deltaTime);
+      bul.update(1.0f / 60.0f);
       int bulletGridX = bul.getGridX(TILE_SIZE);
       int bulletGridY = bul.getGridY(TILE_SIZE);
 
-      // Remove bullets outside viewport
-      if (bulletGridX < leftTile || bulletGridY < topTile ||
-          bulletGridX > rightTile || bulletGridY > bottomTile)
-        continue;
+      // Cull bullets outside visible viewport (not just map)
+      int bulletScreenX = (int)bul.getPixelX() - cameraPixelX + (WIDTH / 2);
+      int bulletScreenY = (int)bul.getPixelY() - cameraPixelY + (HEIGHT / 2);
+      if (bulletScreenX < -TILE_SIZE || bulletScreenX > WIDTH + TILE_SIZE ||
+          bulletScreenY < -TILE_SIZE || bulletScreenY > HEIGHT + TILE_SIZE) {
+        continue; // Outside viewport, don't keep
+      }
 
       // Skip collision check if bullet is still in source turret tile
       if (bulletGridX == bul.getSourceTileX() &&
@@ -217,20 +252,81 @@ class Game : public Core::CoreApplication {
           (int)bul.getPixelX() - cameraPixelX + (WIDTH / 2);
       int bulletScreenCenterY =
           (int)bul.getPixelY() - cameraPixelY + (HEIGHT / 2);
-      int bulletScreenX = bulletScreenCenterX - (TILE_SIZE / 2);
-      int bulletScreenY = bulletScreenCenterY - (TILE_SIZE / 2);
-
-      if (bulletScreenX < WIDTH && bulletScreenX + TILE_SIZE > 0 &&
-          bulletScreenY < HEIGHT && bulletScreenY + TILE_SIZE > 0) {
-        Core::Renderer::GetRenderer()->Draw(bullet, bulletScreenX,
-                                            bulletScreenY, shaders);
+      int bulletRenderX = bulletScreenCenterX - (TILE_SIZE / 2);
+      int bulletRenderY = bulletScreenCenterY - (TILE_SIZE / 2);
+      if (bulletScreenCenterX < WIDTH && bulletScreenCenterX >= 0 &&
+          bulletScreenCenterY < HEIGHT && bulletScreenCenterY >= 0) {
+        Core::Renderer::GetRenderer()->Draw(bullet, bulletRenderX,
+                                            bulletRenderY, shaders);
       }
     }
     bullets = newBullets;
+
+    // Update and render bombs
+    std::vector<Bomb> newBombs;
+    for (auto &b : bombs) {
+      b.update();
+      if (b.hasReachedTarget()) {
+        int bombGridX = b.getGridX();
+        int bombGridY = b.getGridY();
+        auto explosionStart = std::chrono::steady_clock::now();
+
+        for (int dx = -1; dx <= 1; dx++) {
+          for (int dy = -1; dy <= 1; dy++) {
+            int targetX = bombGridX + dx;
+            int targetY = bombGridY + dy;
+            if (targetX >= 0 && targetX < MAP_DIMENSION && targetY >= 0 &&
+                targetY < MAP_DIMENSION) {
+              grid.at(targetX, targetY).takeDamage();
+              explosions.push_back({targetX, targetY, explosionStart});
+            }
+          }
+        }
+      } else {
+        int bombScreenX =
+            (int)b.getPixelX() - cameraPixelX + (WIDTH / 2) - (TILE_SIZE / 2);
+        int bombScreenY =
+            (int)b.getPixelY() - cameraPixelY + (HEIGHT / 2) - (TILE_SIZE / 2);
+        if (bombScreenX < WIDTH && bombScreenX + TILE_SIZE > 0 &&
+            bombScreenY < HEIGHT && bombScreenY + TILE_SIZE > 0) {
+          Core::Renderer::GetRenderer()->Draw(bomb, bombScreenX, bombScreenY,
+                                              shaders);
+        }
+        newBombs.push_back(b);
+      }
+    }
+    bombs = newBombs;
+
+    // Render and update explosions
+    auto now = std::chrono::steady_clock::now();
+    std::vector<Explosion> activeExplosions;
+    for (const auto &exp : explosions) {
+      auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+                         now - exp.startTime)
+                         .count();
+      if (elapsed < 350) { // Show for 1 second
+        int explosionScreenX =
+            exp.gridX * TILE_SIZE - cameraPixelX + (WIDTH / 2);
+        int explosionScreenY =
+            exp.gridY * TILE_SIZE - cameraPixelY + (HEIGHT / 2);
+        Core::Renderer::GetRenderer()->Draw(explosion, explosionScreenX,
+                                            explosionScreenY, shaders);
+        activeExplosions.push_back(exp);
+      }
+    }
+    explosions = activeExplosions;
+
+    // Draw crosshair at mouse position
+    int crosshairX = static_cast<int>(mouseX) - (TILE_SIZE / 2);
+    int crosshairY = static_cast<int>(mouseY) - (TILE_SIZE / 2);
+    Core::Renderer::GetRenderer()->Draw(crosshair, crosshairX, crosshairY,
+                                        shaders);
   }
 
 private:
   std::vector<Bullet> bullets;
+  std::vector<Bomb> bombs;
+  std::vector<Explosion> explosions;
   Map grid;
   GameState state;
   Core::Shader shaders{"../Core/Assets/Shaders/defaultVertexShader.glsl",
@@ -250,5 +346,11 @@ private:
   Core::Image steak{"../Assets/steak.png", TILE_SIZE};
   Core::Image heart{"../Assets/heart.png", TILE_SIZE};
   Core::Image haystack{"../Assets/haystack.png", TILE_SIZE};
+  Core::Image bomb{"../Assets/bomb.png", TILE_SIZE};
+  Core::Image crosshair{"../Assets/crosshair.png", TILE_SIZE};
+  Core::Image explosion{"../Assets/explosion.png", TILE_SIZE};
+  // Mouse tracking
+  double mouseX = 0.0;
+  double mouseY = 0.0;
 };
 START_CORE_GAME(Game);

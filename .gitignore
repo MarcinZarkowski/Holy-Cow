@@ -5,4 +5,5 @@ RelWithDebInfo
 .vs
 cmake-build-debug
 .idea
-build   
+build
+.DS_Store
