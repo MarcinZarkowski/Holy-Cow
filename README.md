@@ -45,7 +45,7 @@ Guide your soldier through a dangerous farm to reach the barn and find shelter f
   - Turn cows into steaks to heal yourself
   - Destroy UFOs blocking your path
   - Clear obstacles from a distance
-- Bomb counter displayed in top-left corner (decreases as you throw)
+- Bomb counter displayed in bottom-left corner (decreases as you throw)
 
 ## Building and Running the Game
 
