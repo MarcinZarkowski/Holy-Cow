@@ -1,7 +1,6 @@
-# GameEngine
-
+<video src="GameDemo.mp4" width="320" height="240" controls></video>
 ## Game Overview
-
+Built on Game Engine built around GLFW
 ### Objective
 Guide your soldier through a dangerous farm to reach the barn and find shelter from hostile alien UFOs. Navigate carefully, use cover wisely, and manage your health to survive the journey.
 
