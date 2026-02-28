@@ -1,4 +1,4 @@
-[<video src="GameDemo.mp4" width="320" height="240" controls></video>](https://github.com/user-attachments/assets/795e7087-f802-4f)
+[[<video src="GameDemo.mp4" width="320" height="240" controls></video>](https://github.com/user-attachments/assets/795e7087-f802-4f)](https://github.com/user-attachments/assets/795e7087-f802-4f8f-9164-684e6921779b)
 ## Game Overview
 Built on Game Engine built around GLFW
 ### Objective
